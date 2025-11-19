@@ -999,9 +999,11 @@
             const unassignedNotes = notes.filter(note => !note.projectId);
             
             notesList.innerHTML = unassignedNotes.map(note => `
-                <div class="nav-item ${currentNote && currentNote.id === note.id ? 'active' : ''}" onclick="openNote(${note.id})">
+                <div class="nav-item ${currentNote && currentNote.id === note.id ? 'active' : ''}"onclick="openNote('${note.id}')"
+>
                     <span>${note.name || 'Bez názvu'}</span>
-                    <button class="delete-btn" onclick="deleteNote(${note.id}, event)">×</button>
+                    <button class="delete-btn" onclick="deleteNote('${note.id}', event)"
+>×</button>
                 </div>
             `).join('');
         }
@@ -1009,21 +1011,22 @@
         function renderProjects() {
             const projectsList = document.getElementById('projectsList');
             
-            projectsList.innerHTML = projects.map(project => {
-                const projectNotes = notes.filter(note => note.projectId == project.id);
-                return `
-                    <div class="nav-item" onclick="toggleProject(${project.id}, event)">
-                        <span>${project.expanded ? '▼' : '▶'} ${project.name}</span>
-                        <button class="delete-btn" onclick="deleteProject(${project.id}, event)">×</button>
-                    </div>
-                    ${project.expanded ? projectNotes.map(note => `
-                        <div class="nav-item project ${currentNote && currentNote.id === note.id ? 'active' : ''}" onclick="openNote(${note.id})">
-                            <span>${note.name || 'Bez názvu'}</span>
-                            <button class="delete-btn" onclick="deleteNote(${note.id}, event)">×</button>
-                        </div>
-                    `).join('') : ''}
-                `;
-            }).join('');
+           projectsList.innerHTML = projects.map(project => {
+    const projectNotes = notes.filter(note => note.projectId == project.id);
+    return `
+        <div class="nav-item" onclick="toggleProject('${project.id}', event)">
+            <span>${project.expanded ? '▼' : '▶'} ${project.name}</span>
+            <button class="delete-btn" onclick="deleteProject('${project.id}', event)">×</button>
+        </div>
+        ${project.expanded ? projectNotes.map(note => `
+            <div class="nav-item project ${currentNote && currentNote.id === note.id ? 'active' : ''}" onclick="openNote('${note.id}')">
+                <span>${note.name || 'Bez názvu'}</span>
+                <button class="delete-btn" onclick="deleteNote('${note.id}', event)">×</button>
+            </div>
+        `).join('') : ''}
+    `;
+}).join('');
+
         }
 
         function toggleProject(id, event) {
