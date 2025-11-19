@@ -718,31 +718,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
-        // Firebase konfigurace
-        const firebaseConfig = {
-            apiKey: "AIzaSyCnFTrCye6Zm9ytObxhdXRAwP5rAYg_MvU",
-            authDomain: "notes-cb1f3.firebaseapp.com",
-            projectId: "notes-cb1f3",
-            storageBucket: "notes-cb1f3.firebasestorage.app",
-            messagingSenderId: "909427422578",
-            appId: "1:909427422578:web:363ab4cf19e439eb2159eb",
-            measurementId: "G-3G3KWP4DCQ"
-        };
-
-        // Inicializace Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        window.db = db;
-        window.firestoreModules = { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, onSnapshot };
-        
-        setSyncStatus('✅', 'Připojeno k Firebase', false);
-    </script>
-    
     <script>
         let notes = [];
         let projects = [];
@@ -785,6 +760,7 @@
                 setSyncStatus('🔄', 'Načítání z Firebase...', false);
                 isLoadingFromFirebase = true;
                 
+                // Opraveno: Destrukturalizace proběhne až v modulu, zde se použije globální proměnná
                 const { collection, getDocs, onSnapshot } = window.firestoreModules;
                 
                 // Načtení poznámek
@@ -1254,9 +1230,9 @@
             );
 
             notesList.innerHTML = filtered.map(note => `
-                <div class="nav-item ${currentNote && currentNote.id === note.id ? 'active' : ''}" onclick="openNote(${note.id})">
+                <div class="nav-item ${currentNote && currentNote.id === note.id ? 'active' : ''}" onclick="openNote('${note.id}')">
                     <span>${note.name || 'Bez názvu'}</span>
-                    <button class="delete-btn" onclick="deleteNote(${note.id}, event)">×</button>
+                    <button class="delete-btn" onclick="deleteNote('${note.id}', event)">×</button>
                 </div>
             `).join('');
         }
@@ -1297,9 +1273,36 @@
         document.getElementById('newProjectName').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') createProject();
         });
+    </script>
 
-        loadData();
-        getStorageInfo();
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Firebase konfigurace
+        const firebaseConfig = {
+            apiKey: "AIzaSyCnFTrCye6Zm9ytObxhdXRAwP5rAYg_MvU",
+            authDomain: "notes-cb1f3.firebaseapp.com",
+            projectId: "notes-cb1f3",
+            storageBucket: "notes-cb1f3.firebasestorage.app",
+            messagingSenderId: "909427422578",
+            appId: "1:909427422578:web:363ab4cf19e439eb2159eb",
+            measurementId: "G-3G3KWP4DCQ"
+        };
+
+        // Inicializace Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Uložení modulů a databáze do globálního objektu window
+        window.db = db;
+        window.firestoreModules = { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, onSnapshot };
+        
+        // Původně synchronně volané funkce nyní voláme až po inicializaci a nastavení globálních proměnných
+        setSyncStatus('✅', 'Připojeno k Firebase', false);
+        
+        window.loadData();
+        window.getStorageInfo();
     </script>
 </body>
 </html>
